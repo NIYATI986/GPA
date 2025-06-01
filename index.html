@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GPA Calculator </title>
+  <link rel="icon" href="https://img.icons8.com/emoji/48/bright-button-emoji.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #121212;
+      color: #f0f0f0;
+      margin: 0;
+      padding: 30px 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #ffa500;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+    }
+    .tagline {
+      color: #ccc;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    .container {
+      max-width: 900px;
+      width: 100%;
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    }
+    .subject {
+      margin-bottom: 20px;
+      padding: 20px;
+      border: 1px solid #333;
+      border-radius: 10px;
+      background: #2a2a2a;
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+    .subject:hover {
+      transform: scale(1.01);
+    }
+    label {
+      font-weight: 600;
+      color: #ffa500;
+      display: block;
+      margin-bottom: 6px;
+    }
+    input {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #1e1e1e;
+      color: #fff;
+      width: 100%;
+      font-size: 15px;
+      margin-bottom: 15px;
+    }
+    .grade-display {
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-top: -10px;
+      margin-bottom: 10px;
+    }
+    .remove-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .add-btn {
+      background-color: #ff8c00;
+      color: white;
+    }
+    .add-btn:hover {
+      background-color: #ffae42;
+    }
+    .calc-btn {
+      background-color: #ffa500;
+      color: #121212;
+    }
+    .calc-btn:hover {
+      background-color: #ffcc70;
+    }
+    #result {
+      margin-top: 25px;
+      font-size: 1.6em;
+      font-weight: bold;
+      color: #ffa500;
+      text-align: center;
+      background-color: #2a2a2a;
+      padding: 15px;
+      border-radius: 12px;
+    }
+    .summary {
+      margin-top: 20px;
+      font-size: 1rem;
+      color: #ccc;
+      line-height: 1.6;
+    }
+    ul {
+      padding-left: 18px;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      .button-group {
+        flex-direction: column;
+        width: 100%;
+      }
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1> GPA Calculator</h1>
+  <div class="tagline">Track your academic performance with clarity and ease</div>
+  <div class="container">
+    <form id="gpaForm">
+      <div id="subjects"></div>
+      <div class="button-group">
+        <button type="button" class="add-btn" onclick="addSubject()">Add Subject</button>
+        <button type="button" class="calc-btn" onclick="calculateGPA()">Calculate GPA</button>
+      </div>
+    </form>
+    <div id="result"></div>
+    <div class="summary" id="summary"></div>
+  </div>
+
+  <script>
+    const gradeMap = [
+      { min: 93, grade: "A+", points: 10 },
+      { min: 85, grade: "A", points: 9 },
+      { min: 77, grade: "B+", points: 8 },
+      { min: 69, grade: "B", points: 7 },
+      { min: 61, grade: "C+", points: 6 },
+      { min: 53, grade: "C", points: 5 },
+      { min: 45, grade: "D", points: 4 },
+      { min: 0, grade: "F", points: 0 }
+    ];
+
+    const container = document.getElementById("subjects");
+
+    function getGradeObject(marks) {
+      for (let i = 0; i < gradeMap.length; i++) {
+        if (marks >= gradeMap[i].min) return gradeMap[i];
+      }
+      return { grade: "F", points: 0 };
+    }
+
+    function addSubject() {
+      const subjectCount = container.children.length + 1;
+      const subjectDiv = document.createElement("div");
+      subjectDiv.classList.add("subject");
+      subjectDiv.innerHTML = `
+        <label>Subject ${subjectCount} Marks (out of 100):</label>
+        <input type="number" name="marks" min="0" max="100" required oninput="updateGradeDisplay(this)">
+        <div class="grade-display">Grade: -</div>
+        <label>Credits (1 to 4):</label>
+        <input type="number" name="credits" min="1" max="4" required>
+        <button type="button" class="remove-btn" onclick="removeSubject(this)">✕</button>
+      `;
+      container.appendChild(subjectDiv);
+    }
+
+    function removeSubject(btn) {
+      btn.parentElement.remove();
+      updateSubjectLabels();
+    }
+
+    function updateSubjectLabels() {
+      const subjects = document.querySelectorAll(".subject");
+      subjects.forEach((subject, i) => {
+        subject.querySelector("label").textContent = `Subject ${i + 1} Marks (out of 100):`;
+      });
+    }
+
+    function updateGradeDisplay(input) {
+      const marks = parseFloat(input.value);
+      const display = input.nextElementSibling;
+      if (!isNaN(marks)) {
+        const { grade } = getGradeObject(marks);
+        display.textContent = `Grade: ${grade}`;
+      } else {
+        display.textContent = `Grade: -`;
+      }
+    }
+
+    function calculateGPA() {
+      const marksInputs = document.querySelectorAll("input[name='marks']");
+      const creditInputs = document.querySelectorAll("input[name='credits']");
+      let totalPoints = 0, totalCredits = 0;
+      let details = "<ul>";
+
+      for (let i = 0; i < marksInputs.length; i++) {
+        const marks = parseFloat(marksInputs[i].value);
+        const credit = parseFloat(creditInputs[i].value);
+        if (isNaN(marks) || isNaN(credit) || credit < 1 || credit > 4 || marks < 0 || marks > 100) {
+          document.getElementById("result").innerText = "Please enter valid marks and credits for all subjects.";
+          document.getElementById("summary").innerHTML = "";
+          return;
+        }
+        const { grade, points } = getGradeObject(marks);
+        totalPoints += points * credit;
+        totalCredits += credit;
+        details += `<li>Subject ${i+1}: Marks = ${marks}, Grade = ${grade}, Credits = ${credit}</li>`;
+      }
+
+      details += "</ul>";
+
+      if (totalCredits === 0) {
+        document.getElementById("result").innerText = "Total credits cannot be zero.";
+        document.getElementById("summary").innerHTML = "";
+        return;
+      }
+
+      const gpa = (totalPoints / totalCredits).toFixed(2);
+      document.getElementById("result").innerText = `Your GPA is: ${gpa}`;
+      document.getElementById("summary").innerHTML = details;
+    }
+
+    // Initialize with one subject
+    addSubject();
+  </script>
+</body>
+</html>
